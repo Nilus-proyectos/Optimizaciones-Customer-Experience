@@ -262,7 +262,7 @@ if df_ayer.empty:
     exit()
 
 # Procesar pedidos
-for i, row in df_target.iterrows():
+for i, row in df_ayer.iterrows():
     try:
         datos_pedido = str(row["datos_pedido"]).strip()
         producto_afectado = str(row["producto_afectado"]).strip()
