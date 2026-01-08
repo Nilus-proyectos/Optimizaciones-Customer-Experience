@@ -19,6 +19,8 @@ from selenium.common.exceptions import TimeoutException
 
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
+from zoneinfo import ZoneInfo
+hoy_art = datetime.now(ZoneInfo("America/Argentina/Buenos_Aires")).date()
 
 # =============== Entorno ===============
 load_dotenv()
