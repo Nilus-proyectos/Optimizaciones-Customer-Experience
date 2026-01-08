@@ -1,0 +1,68 @@
+name: Run Homedelivery
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 12 * * *"  # tener en cuenta las 3 hs porque es Argentina
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Google Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Show Chrome version
+        run: chrome --version
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Si tienes requirements.txt en la carpeta del script, úsalo; si no, instala dependencias básicas
+          if [ -f "HomeDelivery/requirements.txt" ]; then
+            pip install -r HomeDelivery/RequerimentsHomeDelivery.txt
+          else
+            pip install python-dotenv slack_sdk selenium webdriver_manager gspread oauth2client pandas
+          fi
+
+      - name: Create .env from secret (ENV_HOMEDELIVERY)
+        run: |
+          cat > .env <<'ENV'
+          ${{ secrets.ENV_HOMEDELIVERY }}
+          ENV
+
+      - name: Write Google credentials JSON from secret
+        env:
+          GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
+        run: |
+          set -euo pipefail
+          # GSERVICE_CREDENTIALS_JSON
+          set -a
+          source .env
+          set +a
+
+          mkdir -p "$(dirname "$GSERVICE_CREDENTIALS_JSON")"
+          # JSON exacto del secret en la ruta que marca mi .env
+          printf '%s' "${GSERVICE_CREDENTIALS_JSON_CONTENT}" > "$GSERVICE_CREDENTIALS_JSON"
+          chmod 600 "$GSERVICE_CREDENTIALS_JSON"
+
+      - name: Run script
+        env:
+          # Usa el bundle de certificados del runner (no es sensible)
+          SSL_CERT_PATH: /etc/ssl/certs/ca-certificates.crt
+        run: |
+          python HomeDelivery/HomeDELIVERYID.py
