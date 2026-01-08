@@ -1,0 +1,78 @@
+name: Desvios Operativos
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 13 * * *"  # 11:30 ART (UTC-3)
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Google Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Show Chrome version
+        run: chrome --version
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          SCRIPT_DIR="${SCRIPT_DIR:-Desvios}"
+          if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
+            pip install -r "$SCRIPT_DIR/requirements.txt"
+          else
+            pip install python-dotenv pandas selenium webdriver_manager gspread oauth2client requests backports.zoneinfo
+          fi
+
+      - name: Create .env from secret (ENV_DESVIOS)
+        run: |
+          cat > .env <<'ENV'
+          ${{ secrets.ENV_DESVIOS }}
+          ENV
+
+      - name: Materializar credenciales de Google desde secret
+        if: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT != '' }}
+        env:
+          GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
+        run: |
+          set -euo pipefail
+          SCRIPT_DIR="${SCRIPT_DIR:-Desvios}"
+          set -a; source .env || true; set +a
+
+          # Usa la ruta definida en .env o una por defecto
+          REL_PATH="${GSERVICE_CREDENTIALS_JSON:-credenciales/service-account.json}"
+          echo "GSERVICE_CREDENTIALS_JSON=$REL_PATH" >> "$GITHUB_ENV"
+
+          if [[ "$REL_PATH" = /* ]]; then
+            DEST="$REL_PATH"
+          else
+            DEST="$SCRIPT_DIR/$REL_PATH"
+          fi
+
+          echo "Escribiendo credenciales en: $DEST"
+          mkdir -p "$(dirname "$DEST")"
+          printf '%s' "${GSERVICE_CREDENTIALS_JSON_CONTENT}" > "$DEST"
+          chmod 600 "$DEST"
+
+          echo "Verificación:"
+          ls -la "$(dirname "$DEST")"
+          test -f "$DEST" || (echo "::error::JSON no encontrado en $DEST" && exit 1)
+
+      - name: Run script
+        run: |
+          python Desvios-operativos/Desvios.py
