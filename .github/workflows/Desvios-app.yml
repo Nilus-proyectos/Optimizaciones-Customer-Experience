@@ -46,18 +46,26 @@ jobs:
           ENV
 
       - name: Materializar credenciales de Google desde secret
-        if: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT != '' }}
         env:
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
         run: |
           set -euo pipefail
           SCRIPT_DIR="${SCRIPT_DIR:-Desvios}"
+
+          # Si el secret no está, salimos sin error
+          if [ -z "${GSERVICE_CREDENTIALS_JSON_CONTENT:-}" ]; then
+            echo "GSERVICE_CREDENTIALS_JSON_CONTENT vacío; omitiendo materialización."
+            exit 0
+          fi
+
+          # Cargar variables del .env (puede traer GSERVICE_CREDENTIALS_JSON)
           set -a; source .env || true; set +a
 
-          # Usa la ruta definida en .env o una por defecto
+          # Ruta por defecto si no está en .env
           REL_PATH="${GSERVICE_CREDENTIALS_JSON:-credenciales/service-account.json}"
           echo "GSERVICE_CREDENTIALS_JSON=$REL_PATH" >> "$GITHUB_ENV"
 
+          # Absoluta vs relativa
           if [[ "$REL_PATH" = /* ]]; then
             DEST="$REL_PATH"
           else
