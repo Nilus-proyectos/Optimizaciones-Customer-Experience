@@ -1,4 +1,4 @@
-name: Prevencion ARG/MX
+name: Prevención ARG/MX
 
 on:
   workflow_dispatch:
