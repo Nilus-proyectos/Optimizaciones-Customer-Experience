@@ -50,15 +50,21 @@ jobs:
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
         run: |
           set -euo pipefail
-          # GSERVICE_CREDENTIALS_JSON
+          # variables del .env para leer GSERVICE_CREDENTIALS_JSON
           set -a
           source .env
           set +a
 
-          mkdir -p "$(dirname "$GSERVICE_CREDENTIALS_JSON")"
-          # JSON exacto del secret en la ruta que marca mi .env
-          printf '%s' "${GSERVICE_CREDENTIALS_JSON_CONTENT}" > "$GSERVICE_CREDENTIALS_JSON"
-          chmod 600 "$GSERVICE_CREDENTIALS_JSON"
+          if [[ "$GSERVICE_CREDENTIALS_JSON" = /* ]]; then
+            DEST="$GSERVICE_CREDENTIALS_JSON"
+          else
+            DEST="HomeDelivery/$GSERVICE_CREDENTIALS_JSON"
+          fi
+
+          echo "Escribiendo credenciales en: $DEST"
+          mkdir -p "$(dirname "$DEST")"
+          printf '%s' "${GSERVICE_CREDENTIALS_JSON_CONTENT}" > "$DEST"
+          chmod 600 "$DEST"
 
       - name: Run script
         env:
