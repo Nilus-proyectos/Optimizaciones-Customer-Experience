@@ -253,14 +253,13 @@ print(f"📆 Fecha actual: {datetime.now().strftime('%d/%m/%Y')}")
 print(f"📆 Fecha filtrada (ayer): {ayer}")
 print(f"🔎 Filas encontradas: {len(df_ayer)}")
 
-# Filtrar tipo de desvío
-df_target = df_target[df_target["type_desvio"].isin(["faltante", "faltante_parcial"])]
+# Filtrar solo pedidos con estado 'faltante' o 'faltante_parcial'
+df_ayer = df_ayer[df_ayer["type_desvio"].isin(["faltante", "faltante_parcial"])]
 
-if df_target.empty:
-    print("⚠️ No se encontraron pedidos para la fecha objetivo.")
+if df_ayer.empty:
+    print("⚠️ No se encontraron pedidos del día anterior.")
     driver.quit()
-    enviar_notificacion_slack("⚠️ No se encontraron pedidos para la fecha objetivo.")
-    sys.exit(0)
+    exit()
 
 # Procesar pedidos
 for i, row in df_target.iterrows():
