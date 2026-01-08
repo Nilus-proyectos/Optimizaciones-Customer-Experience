@@ -50,7 +50,10 @@ jobs:
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
         run: |
           set -euo pipefail
-          # Cargar variables del .env (por si defines GSERVICE_CREDENTIALS_JSON allí)
+          # Defaults seguros para evitar "unbound variable"
+          SCRIPT_DIR="${SCRIPT_DIR:-ReclamosAI}"
+
+          # Cargar variables del .env (si defines GSERVICE_CREDENTIALS_JSON allí)
           set -a; source .env || true; set +a
 
           # Ruta relativa por defecto si no está definida en ENV_RECLAMOS
