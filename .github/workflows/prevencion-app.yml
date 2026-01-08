@@ -69,4 +69,4 @@ jobs:
         env:
           SSL_CERT_PATH: /etc/ssl/certs/ca-certificates.crt
         run: |
-          python Prevencion/Prevencion.py
+          python Prevención/Prevencion.py
