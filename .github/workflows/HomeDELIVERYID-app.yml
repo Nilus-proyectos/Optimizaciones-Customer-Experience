@@ -3,7 +3,7 @@ name: HomeDELIVERYID
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"  # tener en cuenta las 3 hs porque es Argentina
+    - cron: "59 11 * * *"  # tener en cuenta las 3 hs porque es Argentina
 
 permissions:
   contents: read
