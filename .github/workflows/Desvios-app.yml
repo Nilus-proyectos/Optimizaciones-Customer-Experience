@@ -3,7 +3,7 @@ name: Desvios Operativos
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 13 * * *"  # 11:30 ART (UTC-3)
+    - cron: "01 13 * * *"  # 11:30 ART (UTC-3)
 
 permissions:
   contents: read
