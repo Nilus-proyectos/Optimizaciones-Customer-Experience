@@ -1,0 +1,38 @@
+name: Ejecutar cancelaciones zona insegura
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "11 15 * * *"  # 11:30 ART (UTC-3)
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    environment: ENV_ZONAINSEGURA
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Instalar Google Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Ejecutar script
+        env:
+          SHEET_ID: ${{ vars.SHEET_ID }}
+          GSHEET_WORKSHEET: ${{ vars.GSHEET_WORKSHEET }}
+          BACKOFFICE_BASE_URL: ${{ vars.BACKOFFICE_BASE_URL }}
+          BACKOFFICE_EMAIL: ${{ vars.BACKOFFICE_EMAIL }}
+          BACKOFFICE_PASSWORD: ${{ vars.BACKOFFICE_PASSWORD }}
+          SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
+          SLACK_BOT_TOKEN: ${{ vars.SLACK_BOT_TOKEN }}
+          CUSTOM_CACERT_PATH: ${{ vars.SSL_CERT_PATH }}
+          GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
+        run: python ZonaInsegura/CANCELACION-INSEGURA.py
