@@ -11,21 +11,37 @@ jobs:
     environment: ENV_ZONAINSEGURA
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Instalar Google Chrome
-        id: chrome
         uses: browser-actions/setup-chrome@v1
         with:
           chrome-version: stable
+
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r ZonaInsegura/requirements.txt
+          pip install -r requirements.txt
+
+      # Paso opcional para verificar que las variables estén presentes (sin imprimir valores sensibles)
+      - name: Verificar variables requeridas
+        run: |
+          for v in SHEET_ID GSHEET_WORKSHEET BACKOFFICE_BASE_URL BACKOFFICE_EMAIL BACKOFFICE_PASSWORD SLACK_CHANNEL_ID SLACK_BOT_TOKEN; do
+            if [ -z "${!v}" ]; then
+              echo "Falta la variable: $v"; exit 1;
+            fi
+          done
+          echo "Variables presentes."
+
       - name: Ejecutar script
         env:
+          # Variables del Environment (ENV_ZONAINSEGURA)
           SHEET_ID: ${{ vars.SHEET_ID }}
           GSHEET_WORKSHEET: ${{ vars.GSHEET_WORKSHEET }}
           BACKOFFICE_BASE_URL: ${{ vars.BACKOFFICE_BASE_URL }}
@@ -33,6 +49,10 @@ jobs:
           BACKOFFICE_PASSWORD: ${{ vars.BACKOFFICE_PASSWORD }}
           SLACK_CHANNEL_ID: ${{ vars.SLACK_CHANNEL_ID }}
           SLACK_BOT_TOKEN: ${{ vars.SLACK_BOT_TOKEN }}
+
+          # Certificado del sistema: mapeo tu variable SSL_CERT_PATH a la que usa el script
           CUSTOM_CACERT_PATH: ${{ vars.SSL_CERT_PATH }}
+
+          # Único secreto (JSON del Service Account)
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
         run: python ZonaInsegura/CANCELACION-INSEGURA.py
