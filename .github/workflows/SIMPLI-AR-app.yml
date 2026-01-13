@@ -25,6 +25,13 @@ jobs:
         with:
           chrome-version: stable
 
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          pip install -r SimpliRoute/requirements.txt
+
       - name: Ejecutar script (headless + logs en tiempo real)
         env:
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
@@ -41,13 +48,6 @@ jobs:
           path: |
             chromedriver.log
             **/*.png
-
-      - name: Instalar dependencias
-        run: |
-          python -m pip install --upgrade pip
-          sudo apt-get update
-          sudo apt-get install -y xvfb
-          pip install -r SimpliRoute/requirements.txt
 
       - name: Cargar variables del blob ENV_SIMPLIAR
         run: |
