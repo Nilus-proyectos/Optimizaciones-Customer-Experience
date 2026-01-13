@@ -27,7 +27,7 @@ jobs:
       - name: Instalar dependencias
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r Entrega-fallida/requirements.txt
 
       - name: Cargar variables del blob ENV_FALLIDA
         run: |
