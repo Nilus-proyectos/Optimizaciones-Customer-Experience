@@ -440,29 +440,28 @@ def obtener_pedidos_desde_sheet(client, spreadsheet_id, worksheet_name):
 
 
 def build_driver():
-    options = Options()
+    print("🌐 Inicializando Chrome")
+    sys.stdout.flush()
 
-    # ⚠️ NO headless
+    options = Options()
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--start-maximized")
 
-    # Flags CI
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
 
-    # Evitar detección
     options.add_argument("--disable-blink-features=AutomationControlled")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
 
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()),
-        options=options
-    )
+    driver = webdriver.Chrome(options=options)
 
     driver.set_page_load_timeout(60)
     driver.implicitly_wait(5)
+
+    print("✅ Chrome listo")
+    sys.stdout.flush()
     return driver
 
 
