@@ -1,0 +1,43 @@
+name: Ejecutar SimpliRoute ARGENTINA cancelaciones
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 22,04 * * *"   # 19:00 y 19:00 ART
+    - cron: "11 11 * * *"      # 23:50 ART (02:50 UTC del día siguiente)
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: ENV_SIMPLIAR
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar Google Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r SimpliRoute/requirements.txt
+
+      - name: Cargar variables del blob ENV_SIMPLIAR
+        run: |
+          echo "Cargando variables desde ENV_SIMPLIAR..."
+          echo "${{ vars.ENV_SIMPLIAR }}" | tr -d '\r' | awk 'NF && $0 !~ /^#/ {print}' >> "$GITHUB_ENV"
+          echo "Variables cargadas."
+
+      - name: Ejecutar script
+        env:
+          # Único secret: JSON del Service Account
+          GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
+        run: python SimpliRoute/simplirouteAR_cancelaciones.py
