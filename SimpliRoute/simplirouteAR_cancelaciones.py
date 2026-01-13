@@ -452,17 +452,11 @@ def build_driver():
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option("useAutomationExtension", False)
 
-    # Usa el binario de Chrome del step setup-chrome
     chrome_bin = os.getenv("GOOGLE_CHROME_BIN", "").strip()
     if chrome_bin:
         options.binary_location = chrome_bin
 
     service = ChromeService(ChromeDriverManager().install())
-    try:
-        service.log_output = "chromedriver.log"  # guarda log del driver
-    except Exception:
-        pass
-
     driver = webdriver.Chrome(service=service, options=options)
     driver.set_page_load_timeout(60)
     driver.implicitly_wait(5)
