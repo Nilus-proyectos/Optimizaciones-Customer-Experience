@@ -42,4 +42,4 @@ jobs:
         env:
           # Único secret: JSON del Service Account
           GSERVICE_CREDENTIALS_JSON_CONTENT: ${{ secrets.GSERVICE_CREDENTIALS_JSON_CONTENT }}
-        run: python SimpliRoute/simplirouteAR_cancelaciones.py
+        run: xvfb-run -a python SimpliRoute/simplirouteAR_cancelaciones.py
