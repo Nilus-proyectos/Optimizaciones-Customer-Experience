@@ -1,0 +1,6 @@
+selenium
+webdriver-manager
+slack_sdk
+oauth2client
+gspread
+pandas
