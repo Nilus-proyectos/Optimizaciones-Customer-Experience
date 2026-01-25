@@ -3,7 +3,6 @@ name: Prevención ARG/MX
 on:
   workflow_dispatch:
   schedule:
-    - cron: "31 14 * * *"  # 11:30 ART (UTC-3)
 
 permissions:
   contents: read
